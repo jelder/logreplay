@@ -22,7 +22,10 @@ die unless $server;
 my @times;
 my $parser = Parse::AccessLogEntry->new();
 my $ua = LWP::UserAgent->new;
+my @spinner = qw( - / | \ );
+my @errors = ();
 
+print "Hitting $server: $spinner[0]";
 while (<>) {
     # Setup
     my $request = $parser->parse($_); 
@@ -31,22 +34,32 @@ while (<>) {
     my $url = "http://$server" . $request->{file};
 
     # Do something
+    print "\b", $spinner[$. % scalar @spinner];
     my $begin = [gettimeofday];
     my $req = HTTP::Request->new(GET => $url);
     $req->header('Host', $host) if $host;
     my $res = $ua->request($req);
     if ($res->is_success) {
         push @times, sprintf("%f", tv_interval($begin));
-        print ".";
     } else {
         push @times, undef; # Not sure how to represent this with Sparklines
-        print $res->status_line . " for $url\n";
+        push @errors, $res->status_line . " for $url";
     }
 }
+print "\bDone.\n";
 
-my ($min,$max) = (sort @times)[0,-1];
-my $total;
-$total += $_ for @times;
+if (@errors) {
+    print "There were errors:\n";
+    print "$_\n" for @errors;
+}
+
+my @times_pruned;
+for (@times) {
+    push @times_pruned, $_ if defined $_;
+}
+my ($min,$max) = (sort @times_pruned)[0,-1];
+my $total = 0;
+$total += $_ for @times_pruned;
 
 open REPORT, '>report.json';
 print REPORT objToJson {
@@ -54,5 +67,6 @@ print REPORT objToJson {
     min => $min,
     max => $max,
     total => $total,
-};
+}, {pretty => 1, indent => 2};
 close REPORT;
+
