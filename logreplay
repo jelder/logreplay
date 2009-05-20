@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use Time::HiRes qw(gettimeofday tv_interval usleep);
+use Parse::AccessLogEntry;
+use LWP::UserAgent;
+use Getopt::Long;
+use JSON;
+
+$|=1;
+
+my ($server,$host);
+
+GetOptions(
+    'server=s' => \$server,
+    'host=s' => \$host,
+) or die $!;
+
+die unless $server;
+
+my @times;
+my $parser = Parse::AccessLogEntry->new();
+my $ua = LWP::UserAgent->new;
+
+while (<>) {
+    # Setup
+    my $request = $parser->parse($_); 
+    next unless $request->{rtype} eq 'GET';
+    next unless $request->{code} < 400;
+    my $url = "http://$server" . $request->{file};
+
+    # Do something
+    my $begin = [gettimeofday];
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('Host', $host) if $host;
+    my $res = $ua->request($req);
+    if ($res->is_success) {
+        push @times, sprintf("%f", tv_interval($begin));
+        print ".";
+    } else {
+        push @times, undef; # Not sure how to represent this with Sparklines
+        print $res->status_line . " for $url\n";
+    }
+}
+
+my ($min,$max) = (sort @times)[0,-1];
+my $total;
+$total += $_ for @times;
+
+open REPORT, '>report.json';
+print REPORT objToJson {
+    set => \@times,
+    min => $min,
+    max => $max,
+    total => $total,
+};
+close REPORT;

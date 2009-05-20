@@ -1,0 +1,25 @@
+<html>
+<head>
+<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+<script type="text/javascript" src="processing.js"></script>
+<script type="text/javascript" src="sparklines.js"></script>
+<script type="text/javascript" src="report.json"></script>
+<script>
+var setup = function () {
+    var opts = {
+        "background_color":"#fff",
+        "line_color":"#c00",
+        "value_lines":[data.min,data.max,data.avg],
+        "value_lines_color":"#000",
+    };
+
+    new Sparkline('report', data.set, opts).draw();
+}
+</script>
+</head>
+
+<body onload="setup();">
+<canvas width="300" height="300" id="report" ></canvas>
+</body>
+</html>
+
