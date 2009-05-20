@@ -57,6 +57,16 @@ my $total = 0;
 $total += $_ for @times;
 my $average = $total / scalar(@times);
 
+my $chart_image_url = join('',qw(
+    http://chart.apis.google.com/chart?
+    chs=500x100&
+    chg=0,25&
+    chds=0,1&
+    cht=lc&
+    chd=t:
+    )) .
+    join ',',@times;
+
 open REPORT, '>report.json';
 print REPORT 'var report = ' . objToJson {
     set => \@times,
@@ -66,6 +76,7 @@ print REPORT 'var report = ' . objToJson {
     average => sprintf('%f',$average),
     title => "Performance of " . scalar(@times) . " hits against $server",
     host => $host_header,
+    chart_image_url => $chart_image_url,
 }, {pretty => 1, indent => 2};
 close REPORT;
 
