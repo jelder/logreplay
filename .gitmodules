@@ -1,0 +1,6 @@
+[submodule "shared"]
+	path = shared
+	url = git://github.com/lethain/sparklines.js.git
+[submodule "external/sparklines"]
+	path = external/sparklines
+	url = git://github.com/lethain/sparklines.js.git
