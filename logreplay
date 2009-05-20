@@ -21,7 +21,7 @@ die unless $server;
 
 my @times;
 my $parser = Parse::AccessLogEntry->new();
-my $ua = LWP::UserAgent->new;
+my $ua = LWP::UserAgent->new(agent=>'logreplay');
 my @spinner = qw( - / | \ );
 my @errors = ();
 
@@ -31,6 +31,7 @@ while (<>) {
     my $request = $parser->parse($_); 
     next unless $request->{rtype} eq 'GET';
     next unless $request->{code} < 400;
+    next if $request->{agent} =~ /logreplay/;
     my $url = "http://$server" . $request->{file};
 
     # Do something
@@ -57,15 +58,8 @@ my $total = 0;
 $total += $_ for @times;
 my $average = $total / scalar(@times);
 
-my $chart_image_url = join('',qw(
-    http://chart.apis.google.com/chart?
-    chs=500x100&
-    chg=0,25&
-    chds=0,1&
-    cht=lc&
-    chd=t:
-    )) .
-    join ',',@times;
+my $chart_image_url = 'http://chart.apis.google.com/chart?chs=500x100&chg=0,25&chds=0,1&cht=lc&chd=t:'
+    . join(',',@times);
 
 open REPORT, '>report.json';
 print REPORT 'var report = ' . objToJson {
