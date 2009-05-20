@@ -10,11 +10,11 @@ use JSON;
 
 $|=1;
 
-my ($server,$host);
+my ($server,$host_header);
 
 GetOptions(
-    'server=s' => \$server,
-    'host=s' => \$host,
+    's|server=s' => \$server,
+    'h|host=s' => \$host_header,
 ) or die $!;
 
 die unless $server;
@@ -25,7 +25,7 @@ my $ua = LWP::UserAgent->new;
 my @spinner = qw( - / | \ );
 my @errors = ();
 
-print "Hitting $server: $spinner[0]";
+print "Hitting $server (as $host_header): $spinner[0]";
 while (<>) {
     # Setup
     my $request = $parser->parse($_); 
@@ -37,7 +37,7 @@ while (<>) {
     print "\b", $spinner[$. % scalar @spinner];
     my $begin = [gettimeofday];
     my $req = HTTP::Request->new(GET => $url);
-    $req->header('Host', $host) if $host;
+    $req->header('Host', $host_header) if $host_header;
     my $res = $ua->request($req);
     if ($res->is_success) {
         push @times, sprintf("%f", tv_interval($begin));
@@ -58,12 +58,14 @@ $total += $_ for @times;
 my $average = $total / scalar(@times);
 
 open REPORT, '>report.json';
-print REPORT objToJson {
+print REPORT 'var report = ' . objToJson {
     set => \@times,
-    min => $min,
-    max => $max,
-    total => $total,
-    average => $average,
+    min => sprintf('%f',$min),
+    max => sprintf('%f',$max),
+    total => sprintf('%f',$total),
+    average => sprintf('%f',$average),
+    title => "Performance of " . scalar(@times) . " hits against $server",
+    host => $host_header,
 }, {pretty => 1, indent => 2};
 close REPORT;
 
