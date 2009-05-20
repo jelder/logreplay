@@ -3,23 +3,35 @@
 <!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
 <script type="text/javascript" src="external/sparklines/processing.js"></script>
 <script type="text/javascript" src="external/sparklines/sparklines.js"></script>
+<script src="http://www.google.com/jsapi"></script>
 <script type="text/javascript" src="report.json"></script>
 <script>
-var setup = function () {
-    var opts = {
-        "background_color":"#fff",
-        "line_color":"#c00",
-        "value_lines":[report.min,report.max],
-        "value_lines_color":"#000",
-    };
+    google.load("prototype", "1");
+    var setup = function () {
+        var opts = {
+            "background_color":"#fff",
+            "line_color":"#000",
+            "value_lines":[report.average],
+            "value_lines_color":"#000",
+        };
 
-    new Sparkline('report', report.set, opts).draw();
-}
+        new Sparkline('report', report.set, opts).draw();
+        $('min').update(report.min);
+        $('max').update(report.max);
+        $('average').update(report.average);
+        $('total').update(report.total);
+    }
 </script>
 </head>
 
 <body onload="setup();">
-<canvas width="300" height="300" id="report" ></canvas>
+<canvas id="report" ></canvas>
+<table>
+    <tr><td>Min</td><td id="min"></td></tr>
+    <tr><td>Max</td><td id="max"></td></tr>
+    <tr><td>Average</td><td id="average"></td></tr>
+    <tr><td>Total</td><td id="total"></td></tr>
+</table>
 </body>
 </html>
 
