@@ -1,6 +1,6 @@
 <html>
 <head>
-<!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+<!--[if IE]><script type="text/javascript" src="external/sparklines/excanvas.js"></script><![endif]-->
 <script type="text/javascript" src="external/sparklines/processing.js"></script>
 <script type="text/javascript" src="external/sparklines/sparklines.js"></script>
 <script src="http://www.google.com/jsapi"></script>
@@ -10,21 +10,29 @@
     var setup = function () {
         var opts = {
             "background_color":"#fff",
-            "line_color":"#000",
+            "line_color":"#222",
             "value_lines":[report.average],
-            "value_lines_color":"#000",
         };
-
-        new Sparkline('report', report.set, opts).draw();
+        
+        $('title').update(report.title);
         $('min').update(report.min);
         $('max').update(report.max);
         $('average').update(report.average);
         $('total').update(report.total);
+        $('title').update(report.title);
+        if (report.host) {
+            $('host').update('Virtual host was ' + report.host + '.');
+        }
+        new Sparkline('report', report.set, opts).draw();
     }
 </script>
+<style type="text/css">
+body { color: #222 }
+</style>
 </head>
 
-<body onload="setup();">
+<body onload="setup()">
+<span id="title"/></span></br/>
 <canvas id="report" ></canvas>
 <table>
     <tr><td>Min</td><td id="min"></td></tr>
@@ -32,6 +40,7 @@
     <tr><td>Average</td><td id="average"></td></tr>
     <tr><td>Total</td><td id="total"></td></tr>
 </table>
+<span id="host"/></span>
 </body>
 </html>
 
