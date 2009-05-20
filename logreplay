@@ -42,7 +42,6 @@ while (<>) {
     if ($res->is_success) {
         push @times, sprintf("%f", tv_interval($begin));
     } else {
-        push @times, undef; # Not sure how to represent this with Sparklines
         push @errors, $res->status_line . " for $url";
     }
 }
@@ -53,13 +52,10 @@ if (@errors) {
     print "$_\n" for @errors;
 }
 
-my @times_pruned;
-for (@times) {
-    push @times_pruned, $_ if defined $_;
-}
-my ($min,$max) = (sort @times_pruned)[0,-1];
+my ($min,$max) = (sort @times)[0,-1];
 my $total = 0;
-$total += $_ for @times_pruned;
+$total += $_ for @times;
+my $average = $total / scalar(@times);
 
 open REPORT, '>report.json';
 print REPORT objToJson {
@@ -67,6 +63,7 @@ print REPORT objToJson {
     min => $min,
     max => $max,
     total => $total,
+    average => $average,
 }, {pretty => 1, indent => 2};
 close REPORT;
 

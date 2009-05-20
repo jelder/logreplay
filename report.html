@@ -9,11 +9,11 @@ var setup = function () {
     var opts = {
         "background_color":"#fff",
         "line_color":"#c00",
-        "value_lines":[data.min,data.max,data.avg],
+        "value_lines":[report.min,report.max],
         "value_lines_color":"#000",
     };
 
-    new Sparkline('report', data.set, opts).draw();
+    new Sparkline('report', report.set, opts).draw();
 }
 </script>
 </head>
