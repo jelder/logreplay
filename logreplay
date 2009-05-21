@@ -26,16 +26,19 @@ my $parser = Parse::AccessLogEntry->new();
 my $ua = LWP::UserAgent->new(agent=>'logreplay');
 my @spinner = qw( - / | \ );
 my @errors = ();
+my @urls;
 
-print "Hitting $server (as $host_header): $spinner[0]";
 while (<>) {
     # Setup
     my $request = $parser->parse($_); 
     next unless $request->{rtype} eq 'GET';
     next unless $request->{code} < 400;
     next if $request->{agent} =~ /logreplay/;
-    my $url = "http://$server:$port" . $request->{file};
+    push @urls, "http://$server:$port" . $request->{file};
+}
 
+print "Hitting $server: $spinner[0]";
+for my $url (@urls) {
     # Do something
     print "\b", $spinner[$. % scalar @spinner];
     my $begin = [gettimeofday];
