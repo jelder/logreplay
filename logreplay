@@ -11,10 +11,12 @@ use JSON;
 $|=1;
 
 my ($server,$host_header);
+my $port = 80;
 
 GetOptions(
     's|server=s' => \$server,
     'h|host=s' => \$host_header,
+    'p|port=s' => \$port,
 ) or die $!;
 
 die unless $server;
@@ -32,7 +34,7 @@ while (<>) {
     next unless $request->{rtype} eq 'GET';
     next unless $request->{code} < 400;
     next if $request->{agent} =~ /logreplay/;
-    my $url = "http://$server" . $request->{file};
+    my $url = "http://$server:$port" . $request->{file};
 
     # Do something
     print "\b", $spinner[$. % scalar @spinner];
