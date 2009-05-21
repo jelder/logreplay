@@ -27,18 +27,20 @@
     }
 </script>
 <style type="text/css">
-body { color: #222 }
+body { color: #222; font-family: garamond; }
+td.value { text-align: right } 
 </style>
 </head>
 
 <body onload="setup()">
-<span id="title"/></span></br/>
-<canvas id="report" ></canvas>
+<a href="http://github.com/jelder/logreplay"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+<h3 id="title"/></h3>
+<canvas id="report" width="500" height="200"></canvas>
 <table>
-    <tr><td>Min</td><td id="min"></td></tr>
-    <tr><td>Max</td><td id="max"></td></tr>
-    <tr><td>Average</td><td id="average"></td></tr>
-    <tr><td>Total</td><td id="total"></td></tr>
+    <tr><td>Min</td><td class="value" id="min"></td></tr>
+    <tr><td>Max</td><td class="value" id="max"></td></tr>
+    <tr><td>Average</td><td class="value" id="average"></td></tr>
+    <tr><td>Total</td><td class="value" id="total"></td></tr>
 </table>
 <span id="host"/></span>
 </body>
