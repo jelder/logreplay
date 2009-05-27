@@ -7,6 +7,7 @@ use Parse::AccessLogEntry;
 use LWP::UserAgent;
 use Getopt::Long;
 use JSON;
+use Statistics::Descriptive;
 
 $|=1;
 
@@ -37,6 +38,7 @@ while (<>) {
     push @urls, "http://$server:$port" . $request->{file};
 }
 
+print scalar @urls, " URLs to play back.\n";
 print "Hitting $server: $spinner[0]";
 my $i=0;
 for my $url (@urls) {
@@ -59,18 +61,19 @@ if (@errors) {
     print STDERR "$_\n" for @errors;
 }
 
-my ($min,$max) = (sort @times)[0,-1];
-my $total = 0;
-$total += $_ for @times;
-my $average = $total / scalar(@times);
+my $stat = Statistics::Descriptive::Full->new();
+$stat->add_data(@times);
 
 open REPORT, '>report.json';
 print REPORT 'var report = ' . objToJson {
     set => \@times,
-    min => sprintf('%f',$min),
-    max => sprintf('%f',$max),
-    total => sprintf('%f',$total),
-    average => sprintf('%f',$average),
+    min => $stat->min,
+    max => $stat->max,
+    total => $stat->count,
+    average => $stat->mean,
+    median => $stat->median,
+    percentile_25 => $stat->percentile(25),
+    percentile_75 => $stat->percentile(75),
     title => "Performance of " . scalar(@times) . " hits against $server",
     host => $host_header,
 }, {pretty => 1, indent => 2};
