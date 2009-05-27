@@ -55,8 +55,8 @@ for my $url (@urls) {
 print "\bDone.\n";
 
 if (@errors) {
-    print "There were errors:\n";
-    print "$_\n" for @errors;
+    print "There were ", scalar @errors . " errors:\n";
+    print STDERR "$_\n" for @errors;
 }
 
 my ($min,$max) = (sort @times)[0,-1];
